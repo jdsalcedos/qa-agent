@@ -1,0 +1,128 @@
+{
+  "version": "1.0",
+  "requirements": [
+    {"id": "TD-01", "text": "Crear asigna un ID entero positivo, establece completed=false y guarda el título sin espacios externos."},
+    {"id": "TD-02", "text": "Listar devuelve todas las tareas ordenadas por ID ascendente. El filtro completed devuelve solo coincidencias; sin coincidencias devuelve []."},
+    {"id": "TD-03", "text": "Consultar una tarea existente devuelve su representación actual. Un ID positivo inexistente produce 404."},
+    {"id": "TD-04", "text": "Actualizar completed o title conserva los cambios para consultas siguientes. Los campos omitidos mantienen su valor."},
+    {"id": "TD-05", "text": "Eliminar una tarea existente devuelve 204 sin cuerpo. Consultarla, actualizarla o eliminarla nuevamente produce 404."},
+    {"id": "TD-06", "text": "El título debe ser texto de 1 a 80 caracteres después de recortar espacios. Un cuerpo inválido produce 422 y conserva el estado previo."}
+  ],
+  "contract_hash": "4b4c17f8c5d0c5e8a66810f3968fe54fa09ee87b6dfeb10f306956deb9725472",
+  "operations": [
+    {
+      "operation_id": "createTask", "method": "POST", "path": "/tasks", "parameters": [],
+      "request_body": {"required": true, "content": {"application/json": {"schema": {"properties": {"title": {"type": "string", "maxLength": 80, "minLength": 1, "title": "Title", "description": "Texto de 1 a 80 caracteres tras recortar espacios externos."}}, "additionalProperties": false, "type": "object", "required": ["title"], "title": "TaskCreate"}}}},
+      "responses": {
+        "201": {"description": "Successful Response", "content": {"application/json": {"schema": {"properties": {"id": {"type": "integer", "exclusiveMinimum": 0.0, "title": "Id"}, "title": {"type": "string", "maxLength": 80, "minLength": 1, "title": "Title", "description": "Texto de 1 a 80 caracteres tras recortar espacios externos."}, "completed": {"type": "boolean", "title": "Completed"}}, "additionalProperties": false, "type": "object", "required": ["id", "title", "completed"], "title": "Task"}}}},
+        "422": {"description": "Entrada inválida", "content": {"application/json": {"schema": {"properties": {"error": {"properties": {"code": {"type": "string", "const": "VALIDATION_ERROR", "title": "Code"}}, "additionalProperties": false, "type": "object", "required": ["code"], "title": "ValidationErrorCode"}}, "additionalProperties": false, "type": "object", "required": ["error"], "title": "ValidationErrorResponse"}}}}
+      }
+    },
+    {
+      "operation_id": "listTasks", "method": "GET", "path": "/tasks",
+      "parameters": [{"name": "completed", "location": "query", "required": false, "schema": {"enum": ["true", "false"], "type": "string", "description": "Solo se admiten los textos literales true y false.", "title": "Completed"}}],
+      "request_body": null,
+      "responses": {
+        "200": {"description": "Successful Response", "content": {"application/json": {"schema": {"type": "array", "items": {"properties": {"id": {"type": "integer", "exclusiveMinimum": 0.0, "title": "Id"}, "title": {"type": "string", "maxLength": 80, "minLength": 1, "title": "Title", "description": "Texto de 1 a 80 caracteres tras recortar espacios externos."}, "completed": {"type": "boolean", "title": "Completed"}}, "additionalProperties": false, "type": "object", "required": ["id", "title", "completed"], "title": "Task"}, "title": "Response Listtasks"}}}},
+        "422": {"description": "Entrada inválida", "content": {"application/json": {"schema": {"properties": {"error": {"properties": {"code": {"type": "string", "const": "VALIDATION_ERROR", "title": "Code"}}, "additionalProperties": false, "type": "object", "required": ["code"], "title": "ValidationErrorCode"}}, "additionalProperties": false, "type": "object", "required": ["error"], "title": "ValidationErrorResponse"}}}}
+      }
+    },
+    {
+      "operation_id": "getTask", "method": "GET", "path": "/tasks/{id}",
+      "parameters": [{"name": "id", "location": "path", "required": true, "schema": {"type": "integer", "exclusiveMinimum": 0, "title": "Id"}}],
+      "request_body": null,
+      "responses": {
+        "200": {"description": "Successful Response", "content": {"application/json": {"schema": {"properties": {"id": {"type": "integer", "exclusiveMinimum": 0.0, "title": "Id"}, "title": {"type": "string", "maxLength": 80, "minLength": 1, "title": "Title", "description": "Texto de 1 a 80 caracteres tras recortar espacios externos."}, "completed": {"type": "boolean", "title": "Completed"}}, "additionalProperties": false, "type": "object", "required": ["id", "title", "completed"], "title": "Task"}}}},
+        "422": {"description": "Entrada inválida", "content": {"application/json": {"schema": {"properties": {"error": {"properties": {"code": {"type": "string", "const": "VALIDATION_ERROR", "title": "Code"}}, "additionalProperties": false, "type": "object", "required": ["code"], "title": "ValidationErrorCode"}}, "additionalProperties": false, "type": "object", "required": ["error"], "title": "ValidationErrorResponse"}}}},
+        "404": {"description": "Tarea inexistente", "content": {"application/json": {"schema": {"properties": {"error": {"properties": {"code": {"type": "string", "const": "TASK_NOT_FOUND", "title": "Code"}}, "additionalProperties": false, "type": "object", "required": ["code"], "title": "NotFoundErrorCode"}}, "additionalProperties": false, "type": "object", "required": ["error"], "title": "NotFoundErrorResponse"}}}}
+      }
+    },
+    {
+      "operation_id": "updateTask", "method": "PATCH", "path": "/tasks/{id}",
+      "parameters": [{"name": "id", "location": "path", "required": true, "schema": {"type": "integer", "exclusiveMinimum": 0, "title": "Id"}}],
+      "request_body": {"required": true, "content": {"application/json": {"schema": {"properties": {"title": {"type": "string", "maxLength": 80, "minLength": 1, "title": "Title", "description": "Texto de 1 a 80 caracteres tras recortar espacios externos."}, "completed": {"type": "boolean", "title": "Completed"}}, "additionalProperties": false, "type": "object", "minProperties": 1, "title": "TaskUpdate"}}}},
+      "responses": {
+        "200": {"description": "Successful Response", "content": {"application/json": {"schema": {"properties": {"id": {"type": "integer", "exclusiveMinimum": 0.0, "title": "Id"}, "title": {"type": "string", "maxLength": 80, "minLength": 1, "title": "Title", "description": "Texto de 1 a 80 caracteres tras recortar espacios externos."}, "completed": {"type": "boolean", "title": "Completed"}}, "additionalProperties": false, "type": "object", "required": ["id", "title", "completed"], "title": "Task"}}}},
+        "422": {"description": "Entrada inválida", "content": {"application/json": {"schema": {"properties": {"error": {"properties": {"code": {"type": "string", "const": "VALIDATION_ERROR", "title": "Code"}}, "additionalProperties": false, "type": "object", "required": ["code"], "title": "ValidationErrorCode"}}, "additionalProperties": false, "type": "object", "required": ["error"], "title": "ValidationErrorResponse"}}}},
+        "404": {"description": "Tarea inexistente", "content": {"application/json": {"schema": {"properties": {"error": {"properties": {"code": {"type": "string", "const": "TASK_NOT_FOUND", "title": "Code"}}, "additionalProperties": false, "type": "object", "required": ["code"], "title": "NotFoundErrorCode"}}, "additionalProperties": false, "type": "object", "required": ["error"], "title": "NotFoundErrorResponse"}}}}
+      }
+    },
+    {
+      "operation_id": "deleteTask", "method": "DELETE", "path": "/tasks/{id}",
+      "parameters": [{"name": "id", "location": "path", "required": true, "schema": {"type": "integer", "exclusiveMinimum": 0, "title": "Id"}}],
+      "request_body": null,
+      "responses": {
+        "204": {"description": "Successful Response"},
+        "422": {"description": "Entrada inválida", "content": {"application/json": {"schema": {"properties": {"error": {"properties": {"code": {"type": "string", "const": "VALIDATION_ERROR", "title": "Code"}}, "additionalProperties": false, "type": "object", "required": ["code"], "title": "ValidationErrorCode"}}, "additionalProperties": false, "type": "object", "required": ["error"], "title": "ValidationErrorResponse"}}}},
+        "404": {"description": "Tarea inexistente", "content": {"application/json": {"schema": {"properties": {"error": {"properties": {"code": {"type": "string", "const": "TASK_NOT_FOUND", "title": "Code"}}, "additionalProperties": false, "type": "object", "required": ["code"], "title": "NotFoundErrorCode"}}, "additionalProperties": false, "type": "object", "required": ["error"], "title": "NotFoundErrorResponse"}}}}
+      }
+    }
+  ],
+  "cases": [
+    {
+      "id": "CP-02", "requirement_ids": ["TD-02"],
+      "objective": "Filtrar la semilla intacta por completed=true", "priority": "medium",
+      "mandatory": true, "preconditions": ["seed_ready"],
+      "expected": "Solo la tarea 2 completa, sin elementos adicionales",
+      "steps": [{"operation_id": "listTasks", "query": {"completed": "true"},
+        "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "", "value": [{"id": 2, "title": "Revisar contrato", "completed": true}]}]}]
+    },
+    {
+      "id": "CP-01", "requirement_ids": ["TD-01"],
+      "objective": "Crear con espacios externos y comprobar valores iniciales", "priority": "high",
+      "mandatory": true, "preconditions": ["seed_ready"],
+      "expected": "201, ID presente, título recortado y completed=false",
+      "steps": [{"operation_id": "createTask", "body": {"title": "  Ensayar  "},
+        "assertions": [{"kind": "status", "status": 201}, {"kind": "present", "pointer": "/id"}, {"kind": "equal", "pointer": "/title", "value": "Ensayar"}, {"kind": "equal", "pointer": "/completed", "value": false}]}]
+    },
+    {
+      "id": "CP-03", "requirement_ids": ["TD-03", "TD-04"],
+      "objective": "Crear, completar y volver a consultar usando el ID capturado", "priority": "high",
+      "mandatory": true, "preconditions": ["seed_ready"],
+      "expected": "PATCH y GET conservan título y completed=true",
+      "steps": [
+        {"operation_id": "createTask", "body": {"title": "Persistencia"}, "captures": {"task_id": "/id"}, "assertions": [{"kind": "status", "status": 201}, {"kind": "present", "pointer": "/id"}]},
+        {"operation_id": "updateTask", "path": {"id": {"var": "task_id"}}, "body": {"completed": true}, "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "/title", "value": "Persistencia"}, {"kind": "equal", "pointer": "/completed", "value": true}]},
+        {"operation_id": "getTask", "path": {"id": {"var": "task_id"}}, "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "/title", "value": "Persistencia"}, {"kind": "equal", "pointer": "/completed", "value": true}]}
+      ]
+    },
+    {
+      "id": "CP-04", "requirement_ids": ["TD-05"],
+      "objective": "Eliminar y comprobar ausencia persistente", "priority": "high",
+      "mandatory": true, "preconditions": ["seed_ready"],
+      "expected": "204 vacío, luego GET y DELETE 404 con TASK_NOT_FOUND",
+      "steps": [
+        {"operation_id": "createTask", "body": {"title": "Eliminar"}, "captures": {"task_id": "/id"}, "assertions": [{"kind": "status", "status": 201}]},
+        {"operation_id": "deleteTask", "path": {"id": {"var": "task_id"}}, "assertions": [{"kind": "status", "status": 204}, {"kind": "empty_body"}]},
+        {"operation_id": "getTask", "path": {"id": {"var": "task_id"}}, "assertions": [{"kind": "status", "status": 404}, {"kind": "equal", "pointer": "/error/code", "value": "TASK_NOT_FOUND"}]},
+        {"operation_id": "deleteTask", "path": {"id": {"var": "task_id"}}, "assertions": [{"kind": "status", "status": 404}, {"kind": "equal", "pointer": "/error/code", "value": "TASK_NOT_FOUND"}]}
+      ]
+    },
+    {
+      "id": "CP-05", "requirement_ids": ["TD-06"],
+      "objective": "Rechazar título vacío tras recorte sin crear registros", "priority": "high",
+      "mandatory": true, "preconditions": ["seed_ready"],
+      "expected": "422 VALIDATION_ERROR y lista posterior idéntica a la previa",
+      "steps": [
+        {"operation_id": "listTasks", "captures": {"before": ""}, "assertions": [{"kind": "status", "status": 200}]},
+        {"operation_id": "createTask", "body": {"title": "   "}, "assertions": [{"kind": "status", "status": 422}, {"kind": "equal", "pointer": "/error/code", "value": "VALIDATION_ERROR"}]},
+        {"operation_id": "listTasks", "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "", "value": {"var": "before"}}]}
+      ]
+    },
+    {
+      "id": "CP-06", "requirement_ids": ["TD-06"],
+      "objective": "Aceptar 80 caracteres y rechazar actualización de 81 sin modificar", "priority": "medium",
+      "mandatory": true, "preconditions": ["seed_ready"],
+      "data": {"title80": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "title81": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+      "expected": "Creación 201, actualización 422 VALIDATION_ERROR y GET conserva título de 80",
+      "steps": [
+        {"operation_id": "createTask", "body": {"title": {"var": "title80"}}, "captures": {"task_id": "/id"}, "assertions": [{"kind": "status", "status": 201}]},
+        {"operation_id": "updateTask", "path": {"id": {"var": "task_id"}}, "body": {"title": {"var": "title81"}}, "assertions": [{"kind": "status", "status": 422}, {"kind": "equal", "pointer": "/error/code", "value": "VALIDATION_ERROR"}]},
+        {"operation_id": "getTask", "path": {"id": {"var": "task_id"}}, "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "/title", "value": {"var": "title80"}}]}
+      ]
+    }
+  ],
+  "exit_criteria": {"mandatory_high_must_pass": true, "verdicts_require_evidence": true, "no_open_critical_defects": true},
+  "pending_questions": [],
+  "skill_hashes": {}
+}

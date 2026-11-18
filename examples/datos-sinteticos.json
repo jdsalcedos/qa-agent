@@ -1,0 +1,9 @@
+{
+  "description": "Datos de ensayo sintéticos; la semilla solo existe si el operador la certifica en el perfil antes de ejecutar.",
+  "seed": [
+    {"id": 1, "title": "Preparar demo", "completed": false},
+    {"id": 2, "title": "Revisar contrato", "completed": true}
+  ],
+  "suggested_precondition": "seed_ready",
+  "test_title": "  Ensayar  "
+}

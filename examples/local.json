@@ -1,0 +1,13 @@
+{
+  "id": "local",
+  "base_url": "http://127.0.0.1:8000",
+  "allowed_targets": [{"host": "127.0.0.1", "port": 8000, "ips": ["127.0.0.1"]}],
+  "allowed_operations": ["createTask", "listTasks", "getTask", "updateTask", "deleteTask"],
+  "product_version": "reference",
+  "data": {},
+  "preconditions": {},
+  "credentials": {},
+  "request_timeout_seconds": 10,
+  "process_timeout_seconds": 120,
+  "max_response_bytes": 1000000
+}

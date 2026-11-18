@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "requirements": [{"id": "R-01", "text": "Consultar la representación actual de un recurso"}],
+  "contract_hash": null,
+  "operations": [],
+  "cases": [{
+    "id": "CP-01", "requirement_ids": ["R-01"],
+    "objective": "R-01: consultar la representación actual",
+    "priority": "high", "mandatory": true,
+    "expected": "Representación actual según R-01; falta contrato y dato de ensayo",
+    "steps": [],
+    "automation_pending_reason": "Faltan operación HTTP, respuesta documentada y datos sintéticos"
+  }],
+  "pending_questions": ["R-01: ¿qué operación y dato sintético permiten consultar el recurso?"],
+  "skill_hashes": {}
+}

@@ -1,0 +1,67 @@
+[
+  {
+    "id": "CP-02", "requirement_ids": ["TD-02"],
+    "objective": "Filtrar la semilla intacta por completed=true", "priority": "medium",
+    "mandatory": true, "preconditions": ["seed_ready"],
+    "expected": "Solo la tarea 2 completa, sin elementos adicionales",
+    "steps": [{"operation_id": "listTasks", "query": {"completed": "true"},
+      "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "", "value": [{"id": 2, "title": "Revisar contrato", "completed": true}]}]}]
+  },
+  {
+    "id": "CP-01", "requirement_ids": ["TD-01"],
+    "objective": "Crear con espacios externos y comprobar valores iniciales", "priority": "high",
+    "mandatory": true, "preconditions": ["seed_ready"],
+    "expected": "201, ID presente, título recortado y completed=false",
+    "steps": [{"operation_id": "createTask", "body": {"title": "  Ensayar  "},
+      "assertions": [{"kind": "status", "status": 201}, {"kind": "present", "pointer": "/id"}, {"kind": "equal", "pointer": "/title", "value": "Ensayar"}, {"kind": "equal", "pointer": "/completed", "value": false}]}]
+  },
+  {
+    "id": "CP-03", "requirement_ids": ["TD-03", "TD-04"],
+    "objective": "Crear, completar y volver a consultar usando el ID capturado", "priority": "high",
+    "mandatory": true, "preconditions": ["seed_ready"],
+    "expected": "PATCH y GET conservan título y completed=true",
+    "steps": [
+      {"operation_id": "createTask", "body": {"title": "Persistencia"}, "captures": {"task_id": "/id"},
+       "assertions": [{"kind": "status", "status": 201}, {"kind": "present", "pointer": "/id"}]},
+      {"operation_id": "updateTask", "path": {"id": {"var": "task_id"}}, "body": {"completed": true},
+       "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "/title", "value": "Persistencia"}, {"kind": "equal", "pointer": "/completed", "value": true}]},
+      {"operation_id": "getTask", "path": {"id": {"var": "task_id"}},
+       "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "/title", "value": "Persistencia"}, {"kind": "equal", "pointer": "/completed", "value": true}]}
+    ]
+  },
+  {
+    "id": "CP-04", "requirement_ids": ["TD-05"],
+    "objective": "Eliminar y comprobar ausencia persistente", "priority": "high",
+    "mandatory": true, "preconditions": ["seed_ready"],
+    "expected": "204 vacío, luego GET y DELETE 404 con TASK_NOT_FOUND",
+    "steps": [
+      {"operation_id": "createTask", "body": {"title": "Eliminar"}, "captures": {"task_id": "/id"}, "assertions": [{"kind": "status", "status": 201}]},
+      {"operation_id": "deleteTask", "path": {"id": {"var": "task_id"}}, "assertions": [{"kind": "status", "status": 204}, {"kind": "empty_body"}]},
+      {"operation_id": "getTask", "path": {"id": {"var": "task_id"}}, "assertions": [{"kind": "status", "status": 404}, {"kind": "equal", "pointer": "/error/code", "value": "TASK_NOT_FOUND"}]},
+      {"operation_id": "deleteTask", "path": {"id": {"var": "task_id"}}, "assertions": [{"kind": "status", "status": 404}, {"kind": "equal", "pointer": "/error/code", "value": "TASK_NOT_FOUND"}]}
+    ]
+  },
+  {
+    "id": "CP-05", "requirement_ids": ["TD-06"],
+    "objective": "Rechazar título vacío tras recorte sin crear registros", "priority": "high",
+    "mandatory": true, "preconditions": ["seed_ready"],
+    "expected": "422 VALIDATION_ERROR y lista posterior idéntica a la previa",
+    "steps": [
+      {"operation_id": "listTasks", "captures": {"before": ""}, "assertions": [{"kind": "status", "status": 200}]},
+      {"operation_id": "createTask", "body": {"title": "   "}, "assertions": [{"kind": "status", "status": 422}, {"kind": "equal", "pointer": "/error/code", "value": "VALIDATION_ERROR"}]},
+      {"operation_id": "listTasks", "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "", "value": {"var": "before"}}]}
+    ]
+  },
+  {
+    "id": "CP-06", "requirement_ids": ["TD-06"],
+    "objective": "Aceptar 80 caracteres y rechazar actualización de 81 sin modificar", "priority": "medium",
+    "mandatory": true, "preconditions": ["seed_ready"],
+    "data": {"title80": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "title81": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+    "expected": "Creación 201, actualización 422 VALIDATION_ERROR y GET conserva título de 80",
+    "steps": [
+      {"operation_id": "createTask", "body": {"title": {"var": "title80"}}, "captures": {"task_id": "/id"}, "assertions": [{"kind": "status", "status": 201}]},
+      {"operation_id": "updateTask", "path": {"id": {"var": "task_id"}}, "body": {"title": {"var": "title81"}}, "assertions": [{"kind": "status", "status": 422}, {"kind": "equal", "pointer": "/error/code", "value": "VALIDATION_ERROR"}]},
+      {"operation_id": "getTask", "path": {"id": {"var": "task_id"}}, "assertions": [{"kind": "status", "status": 200}, {"kind": "equal", "pointer": "/title", "value": {"var": "title80"}}]}
+    ]
+  }
+]

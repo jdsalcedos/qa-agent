@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling==1.33.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "qa-agent"
+version = "0.1.0"
+description = "Local, reviewable functional API QA agent"
+requires-python = "==3.14.7"
+dependencies = [
+  "pydantic==2.14.3",
+  "httpx==0.28.1",
+  "mcp==2.3.0",
+  "PyYAML==6.0.3",
+  "Jinja2==3.1.6",
+  "pytest==9.2.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest-asyncio==1.5.0"]
+demo = ["fastapi==0.163.2", "uvicorn==0.54.0"]
+
+[project.scripts]
+qa-agent = "qa_agent.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["qa_agent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
